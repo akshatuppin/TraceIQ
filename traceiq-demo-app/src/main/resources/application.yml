@@ -1,0 +1,19 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: traceiq-demo-app
+
+# TraceIQ Telemetry Client Settings
+traceiq:
+  client:
+    collector-url: "http://localhost:8080/api/v1/telemetry/event"
+    application-id: 1
+    app-key: "trc_live_demo_key_98234"
+    enabled: true
+
+# OpenAPI / Swagger
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

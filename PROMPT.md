@@ -158,4 +158,13 @@ Task: Containerize the platform and finalize demonstration scripts.
 ## 6. Change Log & Updates
 
 - **2026-10-18:** Initialized project scope, architecture blueprints, ADRs, `README.md`, and `PROMPT.md` based on ChatGPT requirements analysis.
-- **2026-10-18:** Linked remote Git repository `https://github.com/akshatuppin/TraceIQ.git`, drafted detailed Backend Requirements Specification (10 FRs, 8 NFRs, REST API table, schema specs), and successfully pushed the initial foundation to `main`. Ready for Phase 1 backend implementation.
+- **2026-10-18:** Linked remote Git repository `https://github.com/akshatuppin/TraceIQ.git`, drafted detailed Backend Requirements Specification (10 FRs, 8 NFRs, REST API table, schema specs), and successfully pushed the initial foundation to `main`.
+- **2026-10-18:** **Completed Backend Implementation:**
+  - Scaffolded Maven multi-module parent POM, `traceiq-core`, and `traceiq-demo-app`.
+  - Implemented 8 JPA entities (`User`, `MonitoredApplication`, `TelemetryEvent`, `MetricWindow`, `Incident`, `IncidentEvidence`, `AnomalyResult`, `AuditLog`) with composite indexes.
+  - Implemented stateless Spring Security 6 with JJWT 0.12+ Bearer authentication and RBAC (`ROLE_ADMIN`, `ROLE_DEVELOPER`, `ROLE_VIEWER`).
+  - Built high-throughput non-blocking telemetry ingestion pipeline (`@Async` thread pool + data sanitization).
+  - Built rolling metric aggregation engine (`@Scheduled` 60s windows, percentiles, error rates) and dual incident detection (rules + ML Isolation Forest client with circuit fallback).
+  - Built incident lifecycle manager (`OPEN` -> `ACKNOWLEDGED` -> `RESOLVED`), deduplication engine with 15-min cooldown, and evidence correlation.
+  - Built `traceiq-demo-app` with e-commerce endpoints (`/orders`, `/payments`, `/inventory`), `TraceIqTelemetryInterceptor` (< 3ms overhead), and `ChaosController` (latency injection, 500 error bursts).
+  - 100% test pass rate across `AuthControllerTest`, `TelemetryIngestionTest`, and `IncidentServiceTest`. Ready to push.

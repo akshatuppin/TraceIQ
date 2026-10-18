@@ -1,0 +1,95 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: traceiq-core
+  profiles:
+    active: dev
+
+  # Default In-Memory H2 Database for seamless local development
+  datasource:
+    url: jdbc:h2:mem:traceiq_db;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=MySQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  # H2 Console
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+      settings:
+        web-allow-others: false
+
+  # Asynchronous Task Execution (Bounded Thread Pool)
+  task:
+    execution:
+      pool:
+        core-size: 8
+        max-size: 32
+        queue-capacity: 500
+        keep-alive: 60s
+      thread-name-prefix: traceiq-async-
+
+# Security & JWT Configuration
+traceiq:
+  security:
+    jwt:
+      # Default development secret key (HMAC-SHA256 requires at least 256 bits / 32 bytes)
+      secret: "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970"
+      expiration-ms: 86400000 # 24 hours
+  ml-service:
+    url: "http://localhost:8000"
+    timeout-ms: 1500
+    enabled: true
+  rules:
+    error-rate-threshold-percent: 10.0
+    latency-p95-threshold-ms: 2000
+    consecutive-5xx-threshold: 5
+    incident-cooldown-minutes: 15
+
+# Observability & Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+
+# OpenAPI / Swagger Documentation
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+---
+# MySQL Production Profile (Activated with --spring.profiles.active=mysql or SPRING_PROFILES_ACTIVE=mysql)
+spring:
+  config:
+    activate:
+      on-profile: mysql
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:traceiq_db}?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+    show-sql: false

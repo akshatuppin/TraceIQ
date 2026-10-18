@@ -307,11 +307,48 @@ Instead of attempting fragile NLP on raw code, TraceIQ focuses on **numerical me
 
 ## 🚀 Quickstart & Setup
 
-*(Detailed setup instructions will be provided as module code is committed.)*
-
 ### Prerequisites
-- Java 21 JDK (or Java 17)
-- Node.js 18+ (for frontend dashboard)
-- Python 3.10+ (for ML service)
-- MySQL 8.0+
-- Docker & Docker Compose
+- Java 17 or Java 21 LTS
+- Apache Maven 3.9+
+- Python 3.10+ (for Phase 4 ML service)
+- MySQL 8.0+ (optional for production profile; dev profile runs on zero-configuration H2 database)
+
+### 1. Build the Multi-Module Project
+```bash
+# Clone the repository
+git clone https://github.com/akshatuppin/TraceIQ.git
+cd TraceIQ
+
+# Compile and run automated tests
+mvn clean test
+```
+
+### 2. Run TraceIQ Core Server (Port 8080)
+```bash
+cd traceiq-core
+mvn spring-boot:run
+```
+- **API Swagger UI Documentation:** [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+- **H2 In-Memory DB Console:** [http://localhost:8080/h2-console](http://localhost:8080/h2-console) (JDBC URL: `jdbc:h2:mem:traceiq_db`, Username: `sa`, Password: *(empty)*)
+- **Actuator Health & Metrics:** [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health)
+- **Pre-seeded Credentials:**
+  - Admin: `username: admin`, `password: Admin@12345`
+  - Developer: `username: developer`, `password: Dev@12345`
+  - Default Monitored Application: `traceiq-demo-store` (App Key: `trc_live_demo_key_98234`)
+
+### 3. Run Monitored Demo E-Commerce App (Port 8081)
+In a separate terminal:
+```bash
+cd traceiq-demo-app
+mvn spring-boot:run
+```
+- **Demo Swagger UI:** [http://localhost:8081/swagger-ui.html](http://localhost:8081/swagger-ui.html)
+- **Test APIs:**
+  - `GET http://localhost:8081/api/orders`
+  - `POST http://localhost:8081/api/orders`
+  - `POST http://localhost:8081/api/payments`
+  - `GET http://localhost:8081/api/inventory/SKU-99`
+- **Inject Chaos:**
+  - Trigger Latency Spike: `POST http://localhost:8081/api/demo/chaos/latency?delayMs=3000`
+  - Trigger 500 Error Burst: `POST http://localhost:8081/api/demo/chaos/errors?rate=50`
+  - Reset Chaos to Normal: `POST http://localhost:8081/api/demo/chaos/reset`
